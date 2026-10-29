@@ -1,0 +1,18 @@
+[package]
+name = "contains-match"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.71"
+
+authors = ["A4-Tacks <wdsjxhno1001@163.com>"]
+keywords = ["matching", "no_std", "wildcard", "glob"]
+categories = ["no-std"]
+description = "Similar to shell glob, more simplified, mainly 'contains' matching"
+
+license = "MIT"
+repository = "https://github.com/A4-Tacks/contains-match-rs"
+
+readme = "README.md"
+
+[dev-dependencies]
+test-buffer = { version = "0.1.2", features = ["expect-test"] }
