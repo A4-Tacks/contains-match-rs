@@ -126,6 +126,16 @@ impl PatternSet {
         self.orded();
     }
 
+    #[must_use]
+    pub fn len(&self) -> usize {
+        self.0.len()
+    }
+
+    #[must_use]
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+
     pub fn iter(&self) -> core::slice::Iter<'_, Pattern> {
         self.0.iter()
     }
@@ -296,10 +306,10 @@ mod tests {
         let b = Pattern::new("bar").unwrap();
 
         let mut set = PatternSet::from_iter([a.clone(), a.clone()]);
-        assert_eq!(set.0.len(), 1);
+        assert_eq!(set.len(), 1);
         set.insert(a);
-        assert_eq!(set.0.len(), 1);
+        assert_eq!(set.len(), 1);
         set.insert(b);
-        assert_eq!(set.0.len(), 2);
+        assert_eq!(set.len(), 2);
     }
 }
