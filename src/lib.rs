@@ -5,7 +5,7 @@
 
 use core::{error::Error, fmt::Display, mem::size_of};
 
-use alloc::{borrow::Cow, string::String};
+use alloc::{borrow::Cow, string::String, vec::Vec};
 extern crate alloc;
 
 /// Checked 'contains match' pattern.
@@ -84,6 +84,78 @@ impl core::fmt::Debug for Pattern {
             Repr::Contains => write!(f, "({s:?})"),
             Repr::Exact => write!(f, "({:?})", &s[1..s.len() - 1]),
         }
+    }
+}
+
+/// [`Pattern`]s set, test any pattern is match.
+#[derive(Debug, Default, Hash, PartialEq, Eq)]
+pub struct PatternSet(Vec<Pattern>);
+
+impl PatternSet {
+    /// Creates a new [`PatternSet`].
+    #[must_use]
+    pub const fn new() -> Self {
+        Self(Vec::new())
+    }
+
+    /// Test any [`Pattern`] [`is_match`](Pattern::is_match).
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use contains_match::*;
+    ///
+    /// let a = Pattern::new("foo").unwrap();
+    /// let b = Pattern::new("bar").unwrap();
+    /// let pattern_set = PatternSet::from_iter([a, b]);
+    /// assert_eq!(pattern_set.is_match("foo"), true);
+    /// assert_eq!(pattern_set.is_match("bar"), true);
+    /// assert_eq!(pattern_set.is_match("oth"), false);
+    /// ```
+    #[must_use]
+    pub fn is_match(&self, s: &str) -> bool {
+        self.iter().any(|pat| pat.is_match(s))
+    }
+
+    /// Add a new [`Pattern`] to set.
+    pub fn insert(&mut self, pattern: Pattern) {
+        if self.0.binary_search(&pattern).is_ok() {
+            return;
+        }
+        self.0.push(pattern);
+        self.orded();
+    }
+
+    pub fn iter(&self) -> core::slice::Iter<'_, Pattern> {
+        self.0.iter()
+    }
+
+    fn orded(&mut self) -> &mut PatternSet {
+        self.0.sort();
+        self
+    }
+}
+impl FromIterator<Pattern> for PatternSet {
+    fn from_iter<I: IntoIterator<Item = Pattern>>(iter: I) -> Self {
+        let mut set = Self(iter.into_iter().collect());
+        set.orded().0.dedup();
+        set
+    }
+}
+impl IntoIterator for PatternSet {
+    type Item = Pattern;
+    type IntoIter = alloc::vec::IntoIter<Pattern>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.0.into_iter()
+    }
+}
+impl<'a> IntoIterator for &'a PatternSet {
+    type Item = &'a Pattern;
+    type IntoIter = core::slice::Iter<'a, Pattern>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.iter()
     }
 }
 
@@ -216,5 +288,18 @@ mod tests {
             Err(ExtraStar(2))
             Err(ExtraStar(3))
         "#]]);
+    }
+
+    #[test]
+    fn pattern_set_dedup() {
+        let a = Pattern::new("foo").unwrap();
+        let b = Pattern::new("bar").unwrap();
+
+        let mut set = PatternSet::from_iter([a.clone(), a.clone()]);
+        assert_eq!(set.0.len(), 1);
+        set.insert(a);
+        assert_eq!(set.0.len(), 1);
+        set.insert(b);
+        assert_eq!(set.0.len(), 2);
     }
 }
