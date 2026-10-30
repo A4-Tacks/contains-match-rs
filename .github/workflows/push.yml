@@ -33,4 +33,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: rm -v Cargo.lock
-      - run: cargo +1.71 test   ${{ matrix.features }} --no-fail-fast
+      - run: |
+          ver=$(awk '/rust-version/{gsub(/"/,"");print$3}' Cargo.toml)
+          cargo +$ver test   ${{ matrix.features }} --no-fail-fast

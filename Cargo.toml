@@ -2,7 +2,7 @@
 name = "contains-match"
 version = "0.1.1"
 edition = "2021"
-rust-version = "1.71"
+rust-version = "1.81"
 
 authors = ["A4-Tacks <wdsjxhno1001@163.com>"]
 keywords = ["matching", "no_std", "wildcard", "glob"]
