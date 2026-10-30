@@ -88,7 +88,7 @@ impl core::fmt::Debug for Pattern {
 }
 
 /// [`Pattern`]s set, test any pattern is match.
-#[derive(Debug, Default, Hash, PartialEq, Eq)]
+#[derive(Debug, Clone, Default, Hash, PartialEq, Eq)]
 pub struct PatternSet(Vec<Pattern>);
 
 impl PatternSet {
